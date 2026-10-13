@@ -1,6 +1,6 @@
 const CARD_TYPE = "temperature-humidity-card";
 const LEGACY_CARD_TYPE = "living-temperature-card";
-const VERSION = "1.2.0";
+const VERSION = "1.2.3";
 
 const STYLE = `
   :host{display:block;color:var(--primary-text-color)}
@@ -30,6 +30,40 @@ function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 
+function attachMoreInfoHold(root, host, getEntityId) {
+  let timer;
+  let start;
+  let lastOpenedAt = 0;
+  const interactive = (event) => event.composedPath().some((node) => node instanceof HTMLElement && node.matches("button,input,select,textarea,a,[role='button'],[contenteditable='true']"));
+  const open = (entityId) => {
+    if (!entityId) return;
+    lastOpenedAt = Date.now();
+    host.dispatchEvent(new CustomEvent("hass-more-info", { bubbles: true, composed: true, detail: { entityId } }));
+  };
+  const cancel = () => { clearTimeout(timer); timer = undefined; start = undefined; };
+  root.addEventListener("pointerdown", (event) => {
+    cancel();
+    if (event.button !== 0 || interactive(event)) return;
+    const entityId = getEntityId(event);
+    if (!entityId) return;
+    start = { x: event.clientX, y: event.clientY };
+    timer = window.setTimeout(() => { timer = undefined; open(entityId); }, 550);
+  });
+  root.addEventListener("pointermove", (event) => {
+    if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > 12) cancel();
+  });
+  ["pointerup", "pointercancel"].forEach((type) => root.addEventListener(type, cancel));
+  root.addEventListener("pointerout", (event) => {
+    if (!(event.relatedTarget instanceof Node) || !root.contains(event.relatedTarget)) cancel();
+  });
+  root.addEventListener("contextmenu", (event) => {
+    if (interactive(event)) return;
+    event.preventDefault();
+    cancel();
+    if (Date.now() - lastOpenedAt > 750) open(getEntityId(event));
+  });
+}
+
 function numericState(entity) {
   if (!entity || ["unknown", "unavailable"].includes(String(entity.state).toLowerCase())) return null;
   const value = Number(entity.state);
@@ -53,6 +87,13 @@ class TemperatureHumidityCard extends HTMLElement {
     if (!config || typeof config !== "object") throw new Error("Provide a valid Temperature & Humidity Card configuration.");
     this._config = { title: "Temperature & Humidity", ...config };
     this._root ??= this.attachShadow({ mode: "open" });
+    if (!this._listenersAttached) {
+      attachMoreInfoHold(this._root, this, (event) => {
+        const metric = event.composedPath().find((node) => node instanceof HTMLElement && node.dataset?.entityId);
+        return metric?.dataset.entityId || this._config?.temperature_entity;
+      });
+      this._listenersAttached = true;
+    }
     this.render();
   }
 
@@ -78,7 +119,7 @@ class TemperatureHumidityCard extends HTMLElement {
     const unavailable = value === null;
     const icon = entity.attributes?.icon || fallbackIcon;
     const safeValue = escapeHtml(formatValue(value, unit));
-    const common = `class="metric ${kind}" aria-label="${escapeHtml(label)}"`;
+    const common = `class="metric ${kind}" data-entity-id="${escapeHtml(entity.entity_id || (kind === "humidity" ? this._config.humidity_entity : this._config.temperature_entity))}" aria-label="${escapeHtml(label)}"`;
     if (kind === "humidity") {
       const progress = value === null ? 0 : Math.max(0, Math.min(100, value));
       return `<section ${common}><div class="metric-head"><div class="metric-label"><ha-icon icon="${escapeHtml(icon)}"></ha-icon>${escapeHtml(label)}</div><span class="metric-badge"><ha-icon icon="mdi:water-outline"></ha-icon></span></div><div class="humidity-content"><div class="metric-value ${unavailable ? "empty unavailable" : ""}">${safeValue}<span class="unit">${escapeHtml(unit)}</span></div><div class="humidity-ring" style="--progress:${progress}%" role="img" aria-label="${unavailable ? "Humidity unavailable" : `${safeValue} ${escapeHtml(unit)} humidity level`}"><ha-icon icon="mdi:water"></ha-icon></div></div></section>`;

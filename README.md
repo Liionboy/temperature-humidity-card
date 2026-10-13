@@ -11,6 +11,7 @@ A decorative, read-only Home Assistant Lovelace card for indoor temperature and 
 - Uses each sensor's live state and unit; unavailable values are shown gracefully.
 - Responsive, theme-aware surface, accessible labels, and reduced-motion support.
 - Read-only: it does not call Home Assistant services or change devices.
+- Press and hold either sensor panel to open that sensor's Home Assistant More Info dialog.
 - No external assets, libraries, analytics, credentials, or backend integration.
 
 ## Install with HACS

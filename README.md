@@ -1,4 +1,4 @@
-# Living Temperature Card
+# Temperature & Humidity Card
 
 A decorative, read-only Home Assistant Lovelace card for indoor temperature and humidity sensors. Warm coral and amber accents distinguish temperature; teal and blue accents highlight humidity, including a circular humidity gauge.
 
@@ -15,28 +15,30 @@ A decorative, read-only Home Assistant Lovelace card for indoor temperature and 
 ## Install with HACS
 
 1. In Home Assistant, open **HACS → ⋮ → Custom repositories**.
-2. Add `https://github.com/Liionboy/lovelace-living-temperature-card` with category **Dashboard**.
-3. Install **Living Temperature Card**, then refresh the browser.
-4. Add the card from the dashboard card picker and select the temperature and humidity entities.
+2. Add `https://github.com/Liionboy/lovelace-temperature-humidity-card` with category **Dashboard**.
+3. Install **Temperature & Humidity Card**, then refresh the browser.
+4. Add the card from the dashboard card picker and choose the temperature and humidity sensors.
 
 This is a frontend Dashboard plugin, not a backend integration.
 
 ## Configuration
 
-The visual editor is recommended. The default entities are the Living Temperature sensors; you can change them in the card editor.
+The visual editor is recommended. Select any numeric temperature and humidity sensors in the entity selectors. Example YAML:
 
 ```yaml
-type: custom:living-temperature-card
-temperature_entity: sensor.living_temperature_temperature
-humidity_entity: sensor.living_temperature_humidity
-title: Living Temperature
+type: custom:temperature-humidity-card
+temperature_entity: sensor.room_temperature
+humidity_entity: sensor.room_humidity
+title: Indoor Climate
 ```
 
-`humidity_entity` and `title` are optional. Units are read from the entities.
+`humidity_entity` and `title` are optional. Units are read from the selected entities. The card does not assume particular sensor names or areas.
+
+Existing dashboards using `type: custom:living-temperature-card` remain supported as a compatibility alias.
 
 ## Manual resource install
 
-Copy `dist/living-temperature-card.js` to `/config/www/living-temperature-card.js`, add `/local/living-temperature-card.js` as a JavaScript module under **Settings → Dashboards → Resources**, refresh the browser, and use `type: custom:living-temperature-card`.
+Copy `dist/temperature-humidity-card.js` to `/config/www/temperature-humidity-card.js`, add `/local/temperature-humidity-card.js` as a JavaScript module under **Settings → Dashboards → Resources**, refresh the browser, and use `type: custom:temperature-humidity-card`.
 
 ## Development
 

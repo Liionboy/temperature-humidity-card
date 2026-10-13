@@ -1,0 +1,109 @@
+const CARD_TYPE = "temperature-humidity-card";
+const LEGACY_CARD_TYPE = "living-temperature-card";
+const VERSION = "1.1.0";
+
+const STYLE = `
+  :host{display:block;color:var(--primary-text-color)}
+  ha-card{overflow:hidden;border:1px solid color-mix(in srgb,var(--divider-color) 55%,transparent);border-radius:26px;background:var(--ha-card-background,var(--card-background-color,#fff));box-shadow:var(--ha-card-box-shadow,0 14px 38px rgba(25,40,70,.12))}
+  .shell{position:relative;isolation:isolate;padding:clamp(17px,3.5vw,25px);background:radial-gradient(ellipse at 0% 0%,rgba(255,133,92,.16),transparent 44%),radial-gradient(ellipse at 100% 100%,rgba(40,205,190,.15),transparent 48%),var(--ha-card-background,var(--card-background-color,#fff))}
+  .shell:before{position:absolute;z-index:-1;inset:0;background:linear-gradient(125deg,rgba(255,151,111,.055),transparent 42%,rgba(55,202,192,.07));content:""}
+  .topline{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{display:flex;align-items:center;gap:12px;min-width:0}.brand-icon{display:grid;place-items:center;width:46px;height:46px;flex:none;border:1px solid rgba(255,255,255,.58);border-radius:16px;background:linear-gradient(145deg,#ff9b72,#f36e76 53%,#9b7af7);box-shadow:0 8px 20px rgba(235,111,125,.25);color:#fff}.brand-icon ha-icon{--mdc-icon-size:25px}.brand-copy{min-width:0}.eyebrow{color:#d66d59;font-size:9px;font-weight:850;letter-spacing:.18em;text-transform:uppercase}.title{margin:4px 0 0;overflow:hidden;font-size:clamp(18px,2.8vw,23px);font-weight:790;letter-spacing:-.04em;text-overflow:ellipsis;white-space:nowrap}.live{display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(35,165,151,.17);border-radius:999px;background:rgba(45,190,166,.09);color:#188c7e;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}.live-dot{width:7px;height:7px;border-radius:50%;background:#24b69b;box-shadow:0 0 0 4px rgba(36,182,155,.14)}
+  .metrics{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:21px}.metric{position:relative;display:flex;min-width:0;min-height:178px;flex-direction:column;justify-content:space-between;overflow:hidden;padding:16px;border:1px solid transparent;border-radius:21px}.metric:after{position:absolute;right:-34px;bottom:-50px;width:135px;height:135px;border-radius:50%;content:"";pointer-events:none}.temperature{border-color:rgba(242,127,91,.18);background:linear-gradient(145deg,rgba(255,236,224,.96),rgba(255,247,239,.84) 58%,rgba(255,255,255,.76))}.temperature:after{background:radial-gradient(circle,rgba(255,142,96,.25),rgba(255,142,96,0) 70%)}.humidity{border-color:rgba(39,176,174,.19);background:linear-gradient(145deg,rgba(220,250,246,.96),rgba(235,249,255,.88) 58%,rgba(255,255,255,.78))}.humidity:after{background:radial-gradient(circle,rgba(39,188,182,.24),rgba(39,188,182,0) 70%)}
+  .metric-head{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:8px}.metric-label{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:850;letter-spacing:.14em;text-transform:uppercase}.temperature .metric-label{color:#cf654e}.humidity .metric-label{color:#168e91}.metric-label ha-icon{--mdc-icon-size:17px}.metric-badge{display:grid;place-items:center;width:28px;height:28px;border-radius:10px;background:rgba(255,255,255,.6)}.temperature .metric-badge{color:#e17c57}.humidity .metric-badge{color:#239fa1}.metric-value{position:relative;z-index:1;display:flex;align-items:flex-start;gap:3px;margin-top:auto;padding-top:17px;font-size:clamp(39px,8vw,58px);font-weight:850;letter-spacing:-.075em;line-height:.95;white-space:nowrap}.temperature .metric-value{color:#bf5849}.humidity .metric-value{color:#147f89}.unit{padding-top:5px;font-size:clamp(14px,2.8vw,19px);font-weight:720;letter-spacing:-.02em}.sensor-name{position:relative;z-index:1;overflow:hidden;margin-top:11px;color:rgba(37,52,76,.62);font-size:10px;font-weight:650;text-overflow:ellipsis;white-space:nowrap}
+  .humidity-content{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:13px}.humidity .metric-value{margin:0;padding:0;font-size:clamp(36px,7vw,52px)}.humidity-ring{display:grid;place-items:center;width:66px;height:66px;flex:none;border-radius:50%;background:conic-gradient(#22b8aa var(--progress,0%),rgba(30,157,168,.13) 0);box-shadow:0 4px 14px rgba(30,157,168,.13)}.humidity-ring:before{width:51px;height:51px;border:1px solid rgba(255,255,255,.8);border-radius:50%;background:linear-gradient(145deg,#effffc,#e5f6fa);content:""}.humidity-ring ha-icon{position:absolute;color:#229da0;--mdc-icon-size:23px}
+  .footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:15px;padding:0 3px;color:var(--secondary-text-color);font-size:10px}.footer-note{display:flex;align-items:center;gap:6px}.footer-note ha-icon{color:#6d86a0;--mdc-icon-size:15px}.footer-accent{color:#a36a8d;font-weight:700}
+  .unavailable{color:var(--error-color,#bd4e4e)!important}.empty{color:var(--secondary-text-color)!important;font-size:clamp(24px,5vw,36px)!important;letter-spacing:-.04em!important}
+  @media(max-width:370px){.shell{padding:14px}.metrics{gap:9px;margin-top:16px}.metric{min-height:155px;padding:12px;border-radius:17px}.brand-icon{width:41px;height:41px}.humidity-ring{width:54px;height:54px}.humidity-ring:before{width:42px;height:42px}.humidity-ring ha-icon{--mdc-icon-size:19px}}
+  @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
+`;
+
+const SCHEMA = [
+  { name: "temperature_entity", required: true, selector: { entity: { domain: ["sensor"] } } },
+  { name: "humidity_entity", selector: { entity: { domain: ["sensor"] } } },
+  { name: "title", selector: { text: {} } },
+];
+const LABELS = { temperature_entity: "Temperature sensor", humidity_entity: "Humidity sensor", title: "Card title" };
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+}
+
+function numericState(entity) {
+  if (!entity || ["unknown", "unavailable"].includes(String(entity.state).toLowerCase())) return null;
+  const value = Number(entity.state);
+  return Number.isFinite(value) ? value : null;
+}
+
+function formatValue(value, unit) {
+  if (value === null) return "—";
+  const digits = unit === "%" ? 0 : 1;
+  return value.toLocaleString(undefined, { maximumFractionDigits: digits, minimumFractionDigits: digits });
+}
+
+class TemperatureHumidityCard extends HTMLElement {
+  static getConfigForm() {
+    return { schema: SCHEMA, computeLabel: (field) => LABELS[field.name] || field.name };
+  }
+
+  static getStubConfig() { return { title: "Temperature & Humidity" }; }
+
+  setConfig(config) {
+    if (!config || typeof config !== "object") throw new Error("Provide a valid Temperature & Humidity Card configuration.");
+    this._config = { title: "Temperature & Humidity", ...config };
+    this._root ??= this.attachShadow({ mode: "open" });
+    this.render();
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    const signature = JSON.stringify([this.temperatureEntity, this.humidityEntity]);
+    if (signature !== this._entitySignature) {
+      this._entitySignature = signature;
+      this.render();
+    }
+  }
+
+  getCardSize() { return 3; }
+  getGridOptions() { return { rows: 3, columns: 6, min_rows: 2, max_rows: 4 }; }
+  get temperatureEntity() { return this._hass?.states?.[this._config?.temperature_entity]; }
+  get humidityEntity() { return this._config?.humidity_entity ? this._hass?.states?.[this._config.humidity_entity] : null; }
+  title() { return this._config.title || "Temperature & Humidity"; }
+
+  metricMarkup({ kind, entity, label, fallbackIcon }) {
+    if (!entity) return "";
+    const value = numericState(entity);
+    const unit = entity.attributes?.unit_of_measurement || (kind === "humidity" ? "%" : "");
+    const unavailable = value === null;
+    const name = entity.attributes?.friendly_name || entity.entity_id || label;
+    const icon = entity.attributes?.icon || fallbackIcon;
+    const safeValue = escapeHtml(formatValue(value, unit));
+    const common = `class="metric ${kind}" aria-label="${escapeHtml(label)}"`;
+    if (kind === "humidity") {
+      const progress = value === null ? 0 : Math.max(0, Math.min(100, value));
+      return `<section ${common}><div class="metric-head"><div class="metric-label"><ha-icon icon="${escapeHtml(icon)}"></ha-icon>${escapeHtml(label)}</div><span class="metric-badge"><ha-icon icon="mdi:water-outline"></ha-icon></span></div><div class="humidity-content"><div class="metric-value ${unavailable ? "empty unavailable" : ""}">${safeValue}<span class="unit">${escapeHtml(unit)}</span></div><div class="humidity-ring" style="--progress:${progress}%" role="img" aria-label="${unavailable ? "Humidity unavailable" : `${safeValue} ${escapeHtml(unit)} humidity level`}"><ha-icon icon="mdi:water"></ha-icon></div></div><div class="sensor-name ${unavailable ? "unavailable" : ""}" title="${escapeHtml(name)}">${escapeHtml(unavailable ? "Sensor unavailable" : name)}</div></section>`;
+    }
+    return `<section ${common}><div class="metric-head"><div class="metric-label"><ha-icon icon="${escapeHtml(icon)}"></ha-icon>${escapeHtml(label)}</div><span class="metric-badge"><ha-icon icon="mdi:thermometer"></ha-icon></span></div><div class="metric-value ${unavailable ? "empty unavailable" : ""}">${safeValue}<span class="unit">${escapeHtml(unit)}</span></div><div class="sensor-name ${unavailable ? "unavailable" : ""}" title="${escapeHtml(name)}">${escapeHtml(unavailable ? "Sensor unavailable" : name)}</div></section>`;
+  }
+
+  render() {
+    if (!this._root || !this._config || !this._hass) return;
+    if (!this._config.temperature_entity) {
+      this._root.innerHTML = `<style>${STYLE}</style><ha-card><div class="shell"><header class="topline"><div class="brand"><span class="brand-icon"><ha-icon icon="mdi:home-thermometer"></ha-icon></span><div class="brand-copy"><div class="eyebrow">Indoor climate</div><h2 class="title">${escapeHtml(this.title())}</h2></div></div></header><p class="footer-note">Choose a temperature sensor in the card editor to get started.</p></div></ha-card>`;
+      return;
+    }
+    const temperature = this.metricMarkup({ kind: "temperature", entity: this.temperatureEntity, label: "Temperature", fallbackIcon: "mdi:thermometer" });
+    const humidity = this.metricMarkup({ kind: "humidity", entity: this.humidityEntity, label: "Humidity", fallbackIcon: "mdi:water-percent" });
+    const title = this.title();
+    const updated = [this.temperatureEntity?.last_changed, this.humidityEntity?.last_changed].filter(Boolean).sort().at(-1);
+    const freshness = updated ? `Updated ${new Date(updated).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}` : "Live sensor readings";
+    this._root.innerHTML = `<style>${STYLE}</style><ha-card><div class="shell"><header class="topline"><div class="brand"><span class="brand-icon"><ha-icon icon="mdi:home-thermometer"></ha-icon></span><div class="brand-copy"><div class="eyebrow">Indoor climate</div><h2 class="title">${escapeHtml(title)}</h2></div></div><span class="live"><span class="live-dot"></span>Live</span></header><div class="metrics">${temperature}${humidity}</div><footer class="footer"><span class="footer-note"><ha-icon icon="mdi:clock-outline"></ha-icon>${escapeHtml(freshness)}</span><span class="footer-accent">Comfort at a glance</span></footer></div></ha-card>`;
+  }
+}
+
+if (!customElements.get(CARD_TYPE)) customElements.define(CARD_TYPE, TemperatureHumidityCard);
+if (!customElements.get(LEGACY_CARD_TYPE)) customElements.define(LEGACY_CARD_TYPE, TemperatureHumidityCard);
+window.customCards = window.customCards || [];
+if (!window.customCards.some((card) => card.type === CARD_TYPE)) {
+  window.customCards.push({ type: CARD_TYPE, name: "Temperature & Humidity Card", description: "Colorful temperature and humidity overview for Home Assistant.", preview: true, documentationURL: "https://github.com/Liionboy/lovelace-temperature-humidity-card" });
+}
+console.info(`%c TEMPERATURE-HUMIDITY-CARD %c ${VERSION} `, "background:#e78070;color:#fff;font-weight:700;", "background:transparent;color:var(--primary-text-color);font-weight:700;");

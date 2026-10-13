@@ -1,5 +1,5 @@
 {
-  "name": "lovelace-temperature-humidity-card",
+  "name": "temperature-humidity-card",
   "version": "1.1.0",
   "type": "module",
   "scripts": {

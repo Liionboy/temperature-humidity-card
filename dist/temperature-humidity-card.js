@@ -104,6 +104,6 @@ if (!customElements.get(CARD_TYPE)) customElements.define(CARD_TYPE, Temperature
 if (!customElements.get(LEGACY_CARD_TYPE)) customElements.define(LEGACY_CARD_TYPE, TemperatureHumidityCard);
 window.customCards = window.customCards || [];
 if (!window.customCards.some((card) => card.type === CARD_TYPE)) {
-  window.customCards.push({ type: CARD_TYPE, name: "Temperature & Humidity Card", description: "Colorful temperature and humidity overview for Home Assistant.", preview: true, documentationURL: "https://github.com/Liionboy/lovelace-temperature-humidity-card" });
+  window.customCards.push({ type: CARD_TYPE, name: "Temperature & Humidity Card", description: "Colorful temperature and humidity overview for Home Assistant.", preview: true, documentationURL: "https://github.com/Liionboy/temperature-humidity-card" });
 }
 console.info(`%c TEMPERATURE-HUMIDITY-CARD %c ${VERSION} `, "background:#e78070;color:#fff;font-weight:700;", "background:transparent;color:var(--primary-text-color);font-weight:700;");

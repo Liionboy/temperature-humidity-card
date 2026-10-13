@@ -15,7 +15,7 @@ A decorative, read-only Home Assistant Lovelace card for indoor temperature and 
 ## Install with HACS
 
 1. In Home Assistant, open **HACS → ⋮ → Custom repositories**.
-2. Add `https://github.com/Liionboy/lovelace-temperature-humidity-card` with category **Dashboard**.
+2. Add `https://github.com/Liionboy/temperature-humidity-card` with category **Dashboard**.
 3. Install **Temperature & Humidity Card**, then refresh the browser.
 4. Add the card from the dashboard card picker and choose the temperature and humidity sensors.
 

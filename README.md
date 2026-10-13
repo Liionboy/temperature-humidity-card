@@ -5,6 +5,7 @@ A decorative, read-only Home Assistant Lovelace card for indoor temperature and 
 ## Features
 
 - Large, easy-to-scan temperature and humidity readings in separate colorful panels.
+- Temperature gradient bar with explicit 0–40 °C / 32–104 °F reference scale.
 - Circular humidity gauge with a percentage ring.
 - Configurable temperature sensor, humidity sensor, and card title.
 - Uses each sensor's live state and unit; unavailable values are shown gracefully.

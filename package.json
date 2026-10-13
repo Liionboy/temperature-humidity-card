@@ -1,0 +1,8 @@
+{
+  "name": "lovelace-living-temperature-card",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "check": "node --check dist/living-temperature-card.js"
+  }
+}
